@@ -36,6 +36,28 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(method: Callable) -> None:
+    """replay func"""
+    if method is None or not hasattr(method, '__self__'):
+        return
+    redis_store = getattr(method.__self__, '_redis', None)
+    if not isinstance(redis_store, redis.Redis):
+        return
+    n = method.__qualname__
+    input_key = f"{n}:inputs"
+    output_key = f"{n}:outputs"
+
+    count = int(redis_store.get(n))
+
+    print(f"{n} was called {count} times:")
+
+    inputs = redis_store.lrange(input_key, 0, -1)
+    outputs = redis_store.lrange(output_key, 0, -1)
+
+    for input, output in zip(inputs, outputs):
+        print(f"{n}(*{input.decode('utf-8')}) -> {output}")
+
+
 class Cache():
     """ cache class """
     def __init__(self) -> None:
