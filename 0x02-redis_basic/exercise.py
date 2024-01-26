@@ -13,7 +13,7 @@ def count_calls(method: Callable) -> Callable:
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         """wrapper func"""
-        key = f"{method.__qualname__}"
+        key = f"{method.__module__}.{method.__qualname__}_call_count"
         self._redis.incr(key)
         result = method(self, *args, **kwargs)
         return result
