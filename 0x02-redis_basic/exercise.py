@@ -2,7 +2,7 @@
 """ writing strings to redis"""
 import redis
 import uuid
-from typing import List, Union, Callable, Optional
+from typing import List, Union, Callable, Optional, Any
 from functools import wraps
 
 mlist = Union[str, bytes, int, float, None]
@@ -11,9 +11,9 @@ mlist = Union[str, bytes, int, float, None]
 def count_calls(method: Callable) -> Callable:
     """decorator func"""
     @wraps(method)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs) -> Any:
         """wrapper func"""
-        key = f"{method.__module__}.{method.__qualname__}_call_count"
+        key = f"{method.__qualname__}"
         self._redis.incr(key)
         result = method(self, *args, **kwargs)
         return result
